@@ -12,12 +12,18 @@ varying lowp vec3 pos_global;
 
 uniform mat4 Model;
 uniform mat4 Projection;
+
 uniform vec3 CameraPos;
+uniform int NumShells;
+uniform int CurShell;
+uniform float Length;
+
 
 void main() {
-	normal = normalize(color0.xyz - 0.5);
+	normal = normalize(color0.xyz / 255.0 - 0.5);
 
-    vec4 res = Projection * Model * vec4(position, 1);
+    // vec4 res = Projection * Model * vec4(position, 1);
+    vec4 res = Projection * Model * vec4(position + normal * Length * float(CurShell) / float(NumShells - 1), 1);
 
     uv_screen = res.xy / 2.0 + vec2(0.5, 0.5);
     uv = texcoord;
