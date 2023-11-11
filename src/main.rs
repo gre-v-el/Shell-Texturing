@@ -1,7 +1,10 @@
 mod furry_mesh;
 mod camera;
+mod state;
 
+use egui_macroquad::{egui, macroquad};
 use camera::OrbitCamera;
+use furry_mesh::FurryMesh;
 use macroquad::prelude::*;
 
 #[macroquad::main("shell")]
@@ -21,15 +24,14 @@ async fn main() {
 		}).unwrap();
 
 	let mut orbit_camera = OrbitCamera {
-		center: vec3(0.0, 0.0, 0.0),
 		polar: 2.0,
 		azimuth: 1.0,
-		zoom: -20.0,
-		rotate_sinsitivity: 6.0,
-		last_mouse: Vec2::from(mouse_position()) / vec2(screen_width(), screen_width()),
+		..Default::default()
 	};
+
 	let mut camera;
 
+	let monkey = FurryMesh::from_file("./objs/monkey.obj");
 
 	loop {
 		clear_background(BLACK);
@@ -45,7 +47,7 @@ async fn main() {
 		draw_line_3d(Vec3::ZERO, Vec3::Z * 10.0, BLUE);
 
 		gl_use_material(&material);
-		draw_sphere_ex(Vec3::ZERO, 1.0, None, WHITE, DrawSphereParams { rings: 100, slices: 100, draw_mode: DrawMode::Triangles });
+		monkey.draw();
 
 		next_frame().await;
 	}

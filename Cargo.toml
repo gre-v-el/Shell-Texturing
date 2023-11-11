@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-macroquad = "0.4.4"
+egui-macroquad = { git = "https://github.com/gre-v-el/egui-macroquad-updated.git" }
 obj = "0.10.2"

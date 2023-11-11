@@ -1,5 +1,6 @@
 use std::f32::consts::PI;
 
+use egui_macroquad::macroquad;
 use macroquad::prelude::*;
 
 pub struct OrbitCamera {
@@ -51,6 +52,19 @@ impl OrbitCamera {
 			} + self.center,
 			target: self.center,
 			..Default::default()
+		}
+	}
+}
+
+impl Default for OrbitCamera {
+	fn default() -> Self {
+		OrbitCamera {
+			azimuth: 0.0,
+			center: vec3(0.0, 0.0, 0.0),
+			last_mouse: Vec2::from(mouse_position()) / vec2(screen_width(), screen_width()),
+			polar: 0.0,
+			rotate_sinsitivity: 6.0,
+			zoom: -20.0,
 		}
 	}
 }
