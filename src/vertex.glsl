@@ -1,14 +1,16 @@
-#version 100
+#version 130
 
-attribute vec3 position;
-attribute vec2 texcoord;
-attribute vec4 color0;
+in vec3 position;
+in vec2 texcoord;
+in vec4 color0;
 
-varying lowp vec2 uv;
-varying lowp vec2 uv_screen;
-varying lowp vec3 normal;
-varying lowp vec3 pos_local;
-varying lowp vec3 pos_global;
+out lowp vec2 uv;
+out lowp vec2 uv_screen;
+out lowp vec3 normal;
+out lowp vec3 pos_local;
+out lowp vec3 pos_local_surface;
+out lowp vec3 pos_global;
+out lowp vec3 pos_global_surface;
 
 uniform mat4 Model;
 uniform mat4 Projection;
@@ -28,7 +30,9 @@ void main() {
     uv_screen = res.xy / 2.0 + vec2(0.5, 0.5);
     uv = texcoord;
 	pos_local = position;
+	pos_local_surface = position + position + normal * Length * float(CurShell) / float(NumShells - 1);
 	pos_global = pos_local + (Model * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	pos_global_surface = pos_local_surface + (Model * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 
     gl_Position = res;
 }
