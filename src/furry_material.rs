@@ -26,6 +26,7 @@ impl FurryMaterial {
 				},
 				uniforms: vec![
 					("CameraPos".to_owned(), UniformType::Float3), 
+					("SpringPos".to_owned(), UniformType::Float3), 
 					("CurShell".to_owned(), UniformType::Int1),
 					("NumShells".to_owned(), UniformType::Int1), 
 					("Length".to_owned(), UniformType::Float1),
@@ -67,6 +68,10 @@ impl FurryMaterial {
 		self.material.set_uniform("CameraPos", pos);
 	}
 
+	pub fn set_spring_pos(&self, pos: Vec3) {
+		self.material.set_uniform("SpringPos", pos);
+	}
+
 	pub fn update_all(&self) {
 		self.material.set_uniform("NumShells", self.shells);
 		self.material.set_uniform("Length", self.length);
@@ -90,5 +95,9 @@ impl FurryMaterial {
 	pub fn drag_n_update<Num: Numeric>(ui: &mut Ui, val: &mut Num, range: RangeInclusive<Num>, speed: f64, label: &str) {
 		ui.label(label);
 		ui.add(DragValue::new(val).clamp_range(range).speed(speed));
+	}
+
+	pub fn get_shells(&self) -> i32 {
+		self.shells
 	}
 }

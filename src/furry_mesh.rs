@@ -4,19 +4,21 @@ use egui_macroquad::macroquad;
 use macroquad::{prelude::*, models::Vertex};
 use obj::{Obj, IndexTuple, ObjData, Object};
 
-use crate::furry_material::FurryMaterial;
+use crate::{furry_material::FurryMaterial, spring::Spring};
 
 const MAX_VERTS: usize = 10000;
 const MAX_INDS: usize = 5000;
 
 pub struct FurryMesh {
 	pub meshes: Vec<Mesh>,
+	spring: Spring,
+	pos: Vec3,
 }
 
 impl FurryMesh {
 
 	pub fn empty() -> Self {
-		Self { meshes: Vec::new() }
+		Self { meshes: Vec::new(), spring: Spring::new(), pos: Vec3::ZERO }
 	}
 
 	pub fn add_mesh(&mut self, vertices: Vec<Vertex>, indices: Vec<u16>) {
@@ -112,15 +114,43 @@ impl FurryMesh {
 		if furry_mesh.is_empty() { None } else { Some(furry_mesh) }
 	}
 
+	pub fn update(&mut self) {
+		self.spring.update();
+	}
+
 	pub fn draw(&self, material: &FurryMaterial) {
+		material.set_spring_pos(self.spring.pos);
+
 		material.activate();
+		
+		unsafe {
+			let gl = get_internal_gl().quad_gl;
 
-		for i in 0..64 {
-			material.set_cur_shell(i);
+			gl.push_model_matrix(glam::Mat4::from_translation(self.pos));
+			for i in 0..material.get_shells() {
+				let t = i as f32 / (material.get_shells() - 1) as f32;
+				material.set_cur_shell(i);
 
-			for mesh in &self.meshes {
-				draw_mesh(mesh);
+				// gl.push_model_matrix(glam::Mat4::from_translation(self.spring.pos * t * 0.05));
+				for mesh in &self.meshes {
+					draw_mesh(mesh);
+				}
+				// gl.pop_model_matrix();
 			}
+			gl.pop_model_matrix();
 		}
+
+		gl_use_default_material();
+
+		draw_line_3d(vec3(5.0, 0.0, 0.0), vec3(5.0, 0.0, 0.0) + self.spring.pos, WHITE);
+	}
+
+	pub fn displace(&mut self, vec: Vec3) {
+		self.spring.pos -= vec;
+		self.pos += vec;
+	}
+
+	pub fn get_position(&self) -> Vec3 {
+		self.pos
 	}
 }

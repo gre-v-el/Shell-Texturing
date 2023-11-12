@@ -2,6 +2,7 @@ mod furry_mesh;
 mod camera;
 mod furry_material;
 mod state;
+mod spring;
 
 use std::env;
 

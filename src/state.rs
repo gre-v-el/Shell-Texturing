@@ -1,4 +1,4 @@
-use std::{fs::read_dir, io::Error, ffi::OsString};
+use std::{fs::read_dir, io::Error, ffi::OsString, f32::consts::PI};
 
 use egui_macroquad::{macroquad::prelude::*, egui::{Window, Align2, ComboBox, RichText, Color32, Label}};
 
@@ -16,8 +16,8 @@ pub struct State {
 impl State {
 	pub fn new() -> Self {
 		let orbit_camera = OrbitCamera {
-			polar: 2.0,
-			azimuth: 1.0,
+			polar: PI*0.65,
+			azimuth: -PI*0.75,
 			..Default::default()
 		};
 		let files = scan_files();
@@ -28,8 +28,7 @@ impl State {
 		ret
 	}
 
-	pub fn draw(&mut self) {
-		
+	pub fn draw(&mut self) {		
 		self.camera = self.orbit_camera.camera();
 		
 		set_camera(&self.camera);
@@ -38,14 +37,24 @@ impl State {
 		draw_line_3d(Vec3::ZERO, Vec3::Y * 10.0, GREEN);
 		draw_line_3d(Vec3::ZERO, Vec3::Z * 10.0, BLUE);
 
-		if let Some(mesh) = &self.mesh {
+		if let Some(mesh) = &mut self.mesh {
+			mesh.update();
 			self.material.set_camera_pos(self.camera.position);
 			mesh.draw(&self.material);
+			
+			let d_mouse = mouse_delta_position();
+			if is_key_down(KeyCode::LeftShift) && is_mouse_button_down(MouseButton::Left) {
+				let d_mouse = d_mouse * self.camera.position.distance(mesh.get_position());
+				let displacement = vec3(0.0, d_mouse.x, d_mouse.y);
+				let displacement = Mat3::from_rotation_y(self.orbit_camera.polar - PI/2.0).mul_vec3(displacement);
+				let displacement = Mat3::from_rotation_z(self.orbit_camera.azimuth).mul_vec3(displacement);
+				mesh.displace(displacement);
+			}
 		}
 
-		let can_drag = self.ui();
+		let pointer_free = self.ui();
 
-		self.orbit_camera.update(can_drag);
+		self.orbit_camera.update(pointer_free && !is_key_down(KeyCode::LeftShift));
 	}
 
 	pub fn ui(&mut self) -> bool {
