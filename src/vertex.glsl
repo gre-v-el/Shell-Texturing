@@ -21,15 +21,26 @@ uniform int NumShells;
 uniform int CurShell;
 uniform float Length;
 
+// https://iquilezles.org/articles/smin/
+
+float smin( float a, float b, float k ) {
+    float h = max( k-abs(a-b), 0.0 )/k;
+    return min( a, b ) - h*h*k*(1.0/4.0);
+}
+
+// custom
 
 void main() {
+	float t = float(CurShell) / float(NumShells - 1);
 	normal = normalize(color0.xyz / 255.0 - 0.5);
 	
 	float intersection = dot(normal, SpringPos); // how far "into the mesh" has spring gone
+	vec3 spring_pos_corrected = SpringPos - normal * smin(intersection, -Length * t, 3.0);
 
+	float spring_len = smin(length(spring_pos_corrected), 5.0, 5.0);
+	spring_pos_corrected = spring_len * normalize(spring_pos_corrected);
 
-	float t = float(CurShell) / float(NumShells - 1);
-	vec3 displacement = normal * Length * t + SpringPos * 0.1 * t*t;
+	vec3 displacement = normal * Length * t + spring_pos_corrected * 0.1 * t*t;
     vec4 res = Projection * Model * vec4(position + displacement, 1);
 
     uv_screen = res.xy / 2.0 + vec2(0.5, 0.5);

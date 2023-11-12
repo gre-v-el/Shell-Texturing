@@ -3,6 +3,7 @@ mod camera;
 mod furry_material;
 mod state;
 mod spring;
+mod params;
 
 use std::env;
 
@@ -29,6 +30,7 @@ async fn main() {
 todo:
 * triangulate messh instead of panicing
 * add color palettes
-* add physics
+* better light
 * don't upload all uniforms each frame
+* presets
 */
