@@ -24,8 +24,11 @@ See the releases tab to the right ->
 ### A bunch of fur presets
 
 ![presets](readme_imgs/presets.png)
+
 ![tentacles preset](readme_imgs/tentacles.gif)
+
 ![monkey preset](readme_imgs/monkey.gif)
+
 ![portal preset](readme_imgs/portal.gif)
 
 ### loading settings from the config file
