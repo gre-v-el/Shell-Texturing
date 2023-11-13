@@ -88,6 +88,8 @@ impl State {
 				.fixed_size([150.0, 300.0])
 				.title_bar(false)
 				.show(ctx, |ui| {
+					ui.separator();
+
 					if ui.button("Show info").clicked() {
 						self.info_open = true;
 					}
@@ -114,9 +116,6 @@ impl State {
 						ui.separator();
 						self.params.ui(ui);
 						ui.separator();
-						if ui.button("print settings").clicked() {
-							self.params.print_all();
-						}
 					}
 					else {
 						ui.add(Label::new(RichText::new("Couldn't read ./objs/\n").color(Color32::RED)));
@@ -150,6 +149,7 @@ impl State {
 				ui.separator();
 
 				ui.label("In the inspector on the left you can select an object to show. The objects listed come from ./objs/ directory, where you can paste your own models. This program accepts only triangulated meshes, so triangulate it beforehand in some software (for example Blender). Have fun with playing around with parameters! If you have any more questions hit me up on discord: @gremble_");
+				ui.hyperlink_to("Read more on github", "https://github.com/gre-v-el/Shell-Texturing");
 			});
 				
 			can_drag = !(ctx.is_using_pointer() || ctx.is_pointer_over_area());

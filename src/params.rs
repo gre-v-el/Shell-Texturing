@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 
 use egui_macroquad::egui::{Ui, DragValue, emath::Numeric, color_picker::color_edit_button_rgb};
 
-pub const PRESETS: [(&str, Params); 4] = [
+pub const PRESETS: [(&str, Params); 5] = [
 	("fluffy", Params {
 		shells: 64,
 		length: 0.3,
@@ -81,6 +81,26 @@ pub const PRESETS: [(&str, Params); 4] = [
 		fur_color_top: [0.0, 0.0, 0.0],
 		ambient: [0.0, 0.0, 0.0],
 		shading: 0.0,
+		show_grid: false,
+	}),
+	("stuff", Params {
+		shells: 64,
+		length: 0.07,
+		length_var: 0.0,
+		jitter: 1.0,
+		thickness: 0.2,
+		profile: 0.42,
+		density: 50.0,
+		wind_power: 0.05,
+		wind_speed: 0.3,
+		wind_turbulence: 0.01,
+		stiffness: 40.0,
+		drag: 3.0,
+		skin_color: [0.0, 0.0, 0.0],
+		fur_color_base: [0.0, 0.0, 0.0],
+		fur_color_top: [0.0, 0.1934061, 1.0],
+		ambient: [0.006255208, 0.01698394, 0.026766025],
+		shading: 0.43,
 		show_grid: false,
 	}),
 ];
