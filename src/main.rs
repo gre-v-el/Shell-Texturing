@@ -77,6 +77,5 @@ async fn main() {
 
 /*
 todo:
-* triangulate mesh instead of panicing
-* don't upload all uniforms each frame
+* make more presets
 */

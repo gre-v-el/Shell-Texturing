@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 
 use egui_macroquad::egui::{Ui, DragValue, emath::Numeric, color_picker::color_edit_button_rgb};
 
-pub const PRESETS: [(&str, Params); 2] = [
+pub const PRESETS: [(&str, Params); 4] = [
 	("fluffy", Params {
 		shells: 64,
 		length: 0.3,
@@ -42,6 +42,46 @@ pub const PRESETS: [(&str, Params); 2] = [
 		ambient: [0.023997774, 0.023740547, 0.082248345],
 		shading: 1.0,
 		show_grid: true,
+	}),
+	("balding monkey", Params {
+		shells: 30,
+		length: 0.02,
+		length_var: 0.72,
+		jitter: 1.0,
+		thickness: 0.3,
+		profile: 0.61,
+		density: 1000.0,
+		wind_power: 0.002,
+		wind_speed: 0.3,
+		wind_turbulence: 0.3,
+		stiffness: 90.0,
+		drag: 5.0,
+		skin_color: [1.0, 0.7235654, 0.585348],
+		fur_color_base: [0.11442155, 0.062171135, 0.020453367],
+		fur_color_top: [0.71002036, 0.44845572, 0.17633472],
+		ambient: [0.15, 0.15, 0.15],
+		shading: 0.45,
+		show_grid: true,
+	}),
+	("glowing portal", Params {
+		shells: 64,
+		length: 0.4,     
+		length_var: 0.62,
+		jitter: 1.0,
+		thickness: 0.26,
+		profile: 0.63,
+		density: 135.0,
+		wind_power: 0.02,
+		wind_speed: 0.1,
+		wind_turbulence: 1.5,
+		stiffness: 30.0,
+		drag: 3.0,
+		skin_color: [0.0, 0.0, 0.0],
+		fur_color_base: [0.0043964386, 0.0, 1.0],
+		fur_color_top: [0.0, 0.0, 0.0],
+		ambient: [0.0, 0.0, 0.0],
+		shading: 0.0,
+		show_grid: false,
 	}),
 ];
 

@@ -52,9 +52,12 @@ impl FurryMaterial {
 		ret
 	}
 
-	pub fn activate(&self, params: &Params) {
-		self.update_all(params);
+	pub fn activate(&self) {
 		gl_use_material(&self.material);
+	}
+
+	pub fn upload_uniforms(&self, params: &Params) {
+		self.update_all(params);
 	}
 
 	pub fn set_cur_shell(&self, i: i32) {

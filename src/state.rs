@@ -15,6 +15,7 @@ pub struct State {
 	current_file: usize,
 	current_preset: Option<usize>,
 	info_open: bool,
+	params_changed: bool,
 }
 
 impl State {
@@ -28,7 +29,7 @@ impl State {
 
 		let params = PRESETS[0].1.clone();
 
-		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params, current_preset: Some(0), info_open: true };
+		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params, current_preset: Some(0), info_open: true, params_changed: true };
 		ret.load_mesh(0);
 
 		ret
@@ -58,8 +59,9 @@ impl State {
 
 		if let Some(mesh) = &mut self.mesh {
 			self.material.set_camera_pos(self.camera.position);
-			mesh.draw(&mut self.material, &self.params);
-			
+			mesh.draw(&mut self.material, &self.params, self.params_changed);
+			self.params_changed = false;
+
 			let d_mouse = mouse_delta_position();
 			if is_key_down(KeyCode::LeftShift) && is_mouse_button_down(MouseButton::Left) {
 				let d_mouse = d_mouse * self.camera.position.distance(mesh.get_position());
@@ -71,6 +73,7 @@ impl State {
 		}
 
 		let pointer_free = self.ui();
+		self.params_changed = !pointer_free;
 
 		self.orbit_camera.update(pointer_free && !is_key_down(KeyCode::LeftShift));
 	}
@@ -85,8 +88,8 @@ impl State {
 				.fixed_size([150.0, 300.0])
 				.title_bar(false)
 				.show(ctx, |ui| {
-					if ui.selectable_value(&mut self.info_open, true, "Show info").clicked() {
-
+					if ui.button("Show info").clicked() {
+						self.info_open = true;
 					}
 
 					if let Ok(files) = &self.files {

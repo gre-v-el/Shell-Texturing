@@ -114,12 +114,15 @@ impl FurryMesh {
 		if furry_mesh.is_empty() { None } else { Some(furry_mesh) }
 	}
 
-	pub fn draw(&self, material: &mut FurryMaterial, params: &Params) {
+	pub fn draw(&self, material: &mut FurryMaterial, params: &Params, upload_uniforms: bool) {
 		material.spring.update(params);		
 		material.set_spring_pos(material.spring.pos);
 		material.set_time(get_time() as f32);
 
-		material.activate(params);
+		if upload_uniforms {
+			material.upload_uniforms(params);
+		}
+		material.activate();
 		
 		unsafe {
 			let gl = get_internal_gl().quad_gl;
