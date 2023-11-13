@@ -2,6 +2,50 @@ use std::ops::RangeInclusive;
 
 use egui_macroquad::egui::{Ui, DragValue, emath::Numeric, color_picker::color_edit_button_rgb};
 
+pub const PRESETS: [(&str, Params); 2] = [
+	("fluffy", Params {
+		shells: 64,
+		length: 0.3,
+		length_var: 0.4,
+		jitter: 1.0,
+		thickness: 0.7,
+		profile: 0.77,
+		density: 400.0,
+		wind_power: 0.01,
+		wind_speed: 0.3,
+		wind_turbulence: 0.5, 
+		stiffness: 40.0, 
+		drag: 3.0,
+		skin_color: [0.9, 0.7, 0.6],
+		fur_color_base: [0.3, 0.2, 0.1],
+		fur_color_top: [0.9, 0.7, 0.6],
+		ambient: [0.15, 0.15, 0.15],
+		shading: 0.45,
+		show_grid: true,
+	}), 
+	("tentacles", Params {
+		shells: 64,
+		length: 1.0,
+		length_var: 0.0,
+		jitter: 1.0,
+		thickness: 0.5,
+		profile: 0.3,
+		density: 50.0,
+		wind_power: 0.007,
+		wind_speed: 1.0,
+		wind_turbulence: 0.6,
+		stiffness: 40.0,
+		drag: 3.0,
+		skin_color: [0.049034674, 0.1069895, 0.1474281],
+		fur_color_base: [0.17923409, 0.05107841, 0.1350132],
+		fur_color_top: [0.9, 0.70000005, 0.6],
+		ambient: [0.023997774, 0.023740547, 0.082248345],
+		shading: 1.0,
+		show_grid: true,
+	}),
+];
+
+#[derive(Clone, PartialEq)]
 pub struct Params {
 	pub wind_power: f32,
 	pub wind_speed: f32,
@@ -23,32 +67,28 @@ pub struct Params {
 	pub show_grid: bool,
 }
 
-impl Default for Params {
-	fn default() -> Self {
-		Self {
-			shells: 64,
-			length: 0.3,
-			length_var: 0.4,
-			jitter: 1.0,
-			thickness: 0.7,
-			profile: 0.77,
-			density: 400.0,
-			wind_power: 0.01,
-			wind_speed: 0.3,
-			wind_turbulence: 0.5, 
-			stiffness: 40.0, 
-			drag: 3.0,
-			skin_color: [0.9, 0.7, 0.6],
-			fur_color_base: [0.3, 0.2, 0.1],
-			fur_color_top: [0.9, 0.7, 0.6],
-			ambient: [0.15, 0.15, 0.15],
-			shading: 0.45,
-			show_grid: true,
-		}
-	}
-}
-
 impl Params {
+	pub fn print_all(&self) {
+		println!("shells: {:?},", self.shells);
+		println!("length: {:?},", self.length);
+		println!("length_var: {:?},", self.length_var);
+		println!("jitter: {:?},", self.jitter);
+		println!("thickness: {:?},", self.thickness);
+		println!("profile: {:?},", self.profile);
+		println!("density: {:?},", self.density);
+		println!("wind_power: {:?},", self.wind_power);
+		println!("wind_speed: {:?},", self.wind_speed);
+		println!("wind_turbulence: {:?},", self.wind_turbulence);
+		println!("stiffness: {:?},", self.stiffness);
+		println!("drag: {:?},", self.drag);
+		println!("skin_color: {:?},", self.skin_color);
+		println!("fur_color_base: {:?},", self.fur_color_base);
+		println!("fur_color_top: {:?},", self.fur_color_top);
+		println!("ambient: {:?},", self.ambient);
+		println!("shading: {:?},", self.shading);
+		println!("show_grid: {:?},", self.show_grid);
+	}
+
 	pub fn spring_ui(&mut self, ui: &mut Ui) {
 		Self::drag_n_update(ui, &mut self.stiffness, 0.0..=1000.0, 5.0, "Stiffness");
 		Self::drag_n_update(ui, &mut self.drag, 1.0..=20.0, 0.5, "Drag");
@@ -96,7 +136,7 @@ impl Params {
 
 	pub fn ui(&mut self, ui: &mut Ui) {
 		ui.collapsing("Color", |ui| self.color_ui(ui));
-		ui.collapsing("Fur",   |ui| self.surface_ui(ui));
+		ui.collapsing("Fur", |ui| self.surface_ui(ui));
 		ui.collapsing("Physics", |ui| self.spring_ui(ui));
 		ui.collapsing("Wind", |ui| self.wind_ui(ui));
 		ui.collapsing("Rendering", |ui| self.shading_ui(ui));

@@ -1,8 +1,8 @@
 use std::{fs::read_dir, io::Error, ffi::OsString, f32::consts::PI};
 
-use egui_macroquad::{macroquad::prelude::*, egui::{Window, Align2, ComboBox, RichText, Color32, Label, Grid, Button}};
+use egui_macroquad::{macroquad::prelude::*, egui::{Window, Align2, ComboBox, RichText, Color32, Label, Grid}};
 
-use crate::{camera::OrbitCamera, furry_mesh::FurryMesh, furry_material::FurryMaterial, params::Params};
+use crate::{camera::OrbitCamera, furry_mesh::FurryMesh, furry_material::FurryMaterial, params::{Params, PRESETS}};
 
 /// Holds the entire application state
 pub struct State {
@@ -13,6 +13,7 @@ pub struct State {
 	material: FurryMaterial,
 	files: Result<Vec<OsString>, Error>,
 	current_file: usize,
+	current_preset: Option<usize>,
 	info_open: bool,
 }
 
@@ -25,9 +26,9 @@ impl State {
 		};
 		let files = scan_files();
 
-		let params = Params::default();
+		let params = PRESETS[0].1.clone();
 
-		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params, info_open: true };
+		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params, current_preset: Some(0), info_open: true };
 		ret.load_mesh(0);
 
 		ret
@@ -75,9 +76,9 @@ impl State {
 	}
 
 	pub fn ui(&mut self) -> bool {
-		let mut choice = self.current_file;
+		let mut file_choice = self.current_file;
+		let mut preset_choice = self.current_preset;
 		let mut can_drag = false;
-		let mut reset_mat = false;
 		egui_macroquad::ui(|ctx| {
 			Window::new("Inspector")
 				.anchor(Align2::LEFT_TOP, [10.0; 2])
@@ -89,20 +90,29 @@ impl State {
 					}
 
 					if let Ok(files) = &self.files {
-						ui.label("Choose model:");
+						ui.label("3D model:");
 						ComboBox::new("models", "")
 							.selected_text(files[self.current_file].to_string_lossy())
 							.show_ui(ui, |ui| {
 								for (i, file) in files.iter().enumerate() {
-									ui.selectable_value(&mut choice, i, file.to_string_lossy());
+									ui.selectable_value(&mut file_choice, i, file.to_string_lossy());
+								}
+							});
+
+						ui.label("Fur presets:");
+						ComboBox::new("presets", "")
+							.selected_text(if let Some(i) = self.current_preset { PRESETS[i].0 } else { "" })
+							.show_ui(ui, |ui| {
+								for (i, (text, _)) in PRESETS.iter().enumerate() {
+									ui.selectable_value(&mut preset_choice, Some(i), *text);
 								}
 							});
 						
 						ui.separator();
 						self.params.ui(ui);
 						ui.separator();
-						if ui.button("reset settings").clicked() {
-							reset_mat = true;
+						if ui.button("print settings").clicked() {
+							self.params.print_all();
 						}
 					}
 					else {
@@ -125,6 +135,10 @@ impl State {
 					ui.label("Pan around");
 					ui.end_row();
 
+					ui.label("Scroll");
+					ui.label("Zoom");
+					ui.end_row();
+
 					ui.label("LShift + Drag LMB");
 					ui.label("Move object");
 					ui.end_row();
@@ -132,18 +146,23 @@ impl State {
 
 				ui.separator();
 
-				ui.label("In the inspector on the left you can select an object to show. The objects listed come from ./objs/ directory, where you can paste your own models. This program accepts only triangulated meshes, so triangulate it beforehand in some software (for example Blender). Have fun with playing around with parameters! If you have any more questions hit me up on discord: ");
+				ui.label("In the inspector on the left you can select an object to show. The objects listed come from ./objs/ directory, where you can paste your own models. This program accepts only triangulated meshes, so triangulate it beforehand in some software (for example Blender). Have fun with playing around with parameters! If you have any more questions hit me up on discord: @gremble_");
 			});
 				
 			can_drag = !(ctx.is_using_pointer() || ctx.is_pointer_over_area());
 		});
 		
 		egui_macroquad::draw();
-		if reset_mat {
-			self.params = Params::default();
+		if file_choice != self.current_file {
+			self.load_mesh(file_choice);
 		}
-		if choice != self.current_file {
-			self.load_mesh(choice);
+		if preset_choice != self.current_preset {
+			self.current_preset = preset_choice;
+			self.params = PRESETS[preset_choice.unwrap()].1.clone();
+		}
+
+		if self.current_preset.is_some() && !can_drag && self.params != PRESETS[self.current_preset.unwrap()].1 {
+			self.current_preset = None;
 		}
 
 		can_drag

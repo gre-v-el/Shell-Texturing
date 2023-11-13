@@ -5,20 +5,39 @@ mod state;
 mod spring;
 mod params;
 
-use std::env;
+use std::{env, fs};
 
-use egui_macroquad::{macroquad, egui::FontDefinitions};
+use egui_macroquad::macroquad;
 use macroquad::prelude::*;
 use state::State;
 
 fn conf() -> Conf {
+	let mut fullscreen: bool = false;
+	let mut samples = 16;
+
+	if let Ok(str) = fs::read_to_string("settings.txt") {
+		for mut line in str.lines() {
+			line = line.trim();
+			if let Some((mut key, mut value)) = line.split_once(": ") {
+				key = key.trim();
+				value = value.trim();
+
+				match key {
+					"fullscreen" => fullscreen = value == "true",
+					"samples" => samples = value.parse::<i32>().unwrap_or(samples),
+					_ => {}
+				}
+			}
+		}
+	}
+
 	Conf { 
 		window_title: "Shell Textfurring".to_owned(), 
-		window_width: 700, 
-		window_height: 600, 
-		high_dpi: false, 
-		fullscreen: false, 
-		sample_count: 16, 
+		window_width: 900, 
+		window_height: 700, 
+		high_dpi: false,
+		fullscreen, 
+		sample_count: samples, 
 		window_resizable: true, 
 		..Default::default()
 	}
@@ -28,11 +47,27 @@ fn conf() -> Conf {
 async fn main() {
 	env::set_var("RUST_BACKTRACE", "1");
 
+	let mut state = State::new();
+
+	let mut scale = 1.3;
+	if let Ok(str) = fs::read_to_string("settings.txt") {
+		for mut line in str.lines() {
+			line = line.trim();
+			if let Some((mut key, mut value)) = line.split_once(": ") {
+				key = key.trim();
+				value = value.trim();
+
+				if key == "scale" {
+					scale = value.parse::<f32>().unwrap_or(scale);
+				}
+			}
+		}
+	}
+
 	egui_macroquad::cfg(|ctx| {
-		ctx.set_pixels_per_point(1.3);
+		ctx.set_pixels_per_point(scale);
 	});
 
-	let mut state = State::new();
 
 	loop {		
 		state.draw();
@@ -44,6 +79,4 @@ async fn main() {
 todo:
 * triangulate mesh instead of panicing
 * don't upload all uniforms each frame
-* presets
-* settings.txt (fullscreen, samples, ui_scale)
 */

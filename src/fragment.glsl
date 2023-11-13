@@ -164,6 +164,11 @@ float profile(float h) {
 }
 
 void main() {
+	vec3 ambient = pow(Ambient, vec3(1.0 / 2.2));
+	vec3 skin_col = pow(SkinCol, vec3(1.0 / 2.2));
+	vec3 top_col =  pow(TopCol,  vec3(1.0 / 2.2));
+	vec3 base_col = pow(BaseCol, vec3(1.0 / 2.2));
+
 	// one voronoi cell is a single fur strand
 	vec2 vor = voronoi(uv * Density, Jitter);
 	float rand = vor.x;
@@ -186,9 +191,9 @@ void main() {
 	}
 
 	float skin_mask = step(float(CurShell), 0.5);
-	vec3 col = mix(mix(BaseCol, TopCol, h), SkinCol, skin_mask);
+	vec3 col = mix(mix(base_col, top_col, h), skin_col, skin_mask);
 
-	float light = clamp((1.0-Shading) + Shading * dot(normal, normalize(vec3(10.0, 20.0, 30.0))), 0.0, 1.0);
+	float light = clamp((1.0-Shading) + Shading * dot(normal, normalize(vec3(10.0, 20.0, 30.0))), 0.0, 1.0) * (1.0 - length(Ambient));
 	
-	fragColor = vec4(vec3(col * (light + Ambient)), 0.0);
+	fragColor = vec4(pow(col * light + col * ambient, vec3(2.2)), 0.0);
 }
