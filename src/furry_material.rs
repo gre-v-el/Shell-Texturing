@@ -33,6 +33,11 @@ impl FurryMaterial {
 					("Thickness".to_owned(), UniformType::Float1),
 					("Profile".to_owned(), UniformType::Float1),
 					("Density".to_owned(), UniformType::Float1),
+					("SkinCol".to_owned(), UniformType::Float3),
+					("BaseCol".to_owned(), UniformType::Float3),
+					("TopCol".to_owned(), UniformType::Float3),
+					("Ambient".to_owned(), UniformType::Float3),
+					("Shading".to_owned(), UniformType::Float1),
 				], 
 				textures: vec![],
 			}).unwrap();
@@ -79,5 +84,10 @@ impl FurryMaterial {
 		self.material.set_uniform("Thickness", params.thickness);
 		self.material.set_uniform("Profile", params.profile);
 		self.material.set_uniform("Density", params.density);
+		self.material.set_uniform("SkinCol", params.skin_color);
+		self.material.set_uniform("BaseCol", params.fur_color_base);
+		self.material.set_uniform("TopCol", params.fur_color_top);
+		self.material.set_uniform("Ambient", params.ambient);
+		self.material.set_uniform("Shading", params.shading);
 	}
 }

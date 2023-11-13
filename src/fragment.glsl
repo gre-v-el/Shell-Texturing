@@ -23,6 +23,11 @@ uniform float Jitter;
 uniform float Thickness;
 uniform float Profile;
 uniform float Density;
+uniform vec3 SkinCol;
+uniform vec3 BaseCol;
+uniform vec3 TopCol;
+uniform vec3 Ambient;
+uniform float Shading;
 
 //https://iquilezles.org/articles/smoothvoronoi
 vec3 hash2f( vec2 p )
@@ -159,27 +164,31 @@ float profile(float h) {
 }
 
 void main() {
-
+	// one voronoi cell is a single fur strand
 	vec2 vor = voronoi(uv * Density, Jitter);
 	float rand = vor.x;
 	
 	float strand_height = 1.0 - LengthVar*rand;
 	float h = float(CurShell) / float(NumShells - 1) / strand_height;
 	
-	vec2 uv_new = uv + h*vec2(snoise(pos_global_surface*WindTurbulence + vec3(Time*WindSpeed))) * WindPower;
+	// wind - domain warping
+	vec2 uv_new = uv + h*vec2(snoise(pos_local_surface*WindTurbulence + vec3(Time*WindSpeed))) * WindPower;
 	vec2 vor_new = voronoi(uv_new * Density, Jitter);
+	
+	rand = vor_new.x;
+	strand_height = 1.0 - LengthVar*rand;
+	h = float(CurShell) / float(NumShells - 1) / strand_height;
 
-	float dist_to_center = vor_new.y;
+	float in_strand = step(vor_new.y, Thickness * profile(h));
 
-	float in_strand = step(dist_to_center, Thickness * profile(h));
-
-	if(in_strand == 0.0 && CurShell != 0 || h > 1.0) {
+	if(in_strand < 0.5 && CurShell != 0 || h > 1.0) {
 		discard;
 	}
 
-	float light = (0.5 + 0.5 * dot(normal, normalize(vec3(10.0, 20.0, 30.0)))) * (0.5 + 0.5*h);
-	float fresnel = pow(1.0 - dot(normal, normalize(CameraPos - pos_global)), 8.0);
+	float skin_mask = step(float(CurShell), 0.5);
+	vec3 col = mix(mix(BaseCol, TopCol, h), SkinCol, skin_mask);
+
+	float light = clamp((1.0-Shading) + Shading * dot(normal, normalize(vec3(10.0, 20.0, 30.0))), 0.0, 1.0);
 	
-	// fragColor = vec4(vec3(strand_height), 0.0);
-	fragColor = vec4(vec3(pow(light, 2.2)), 0.0);
+	fragColor = vec4(vec3(col * (light + Ambient)), 0.0);
 }

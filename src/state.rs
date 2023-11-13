@@ -1,9 +1,10 @@
 use std::{fs::read_dir, io::Error, ffi::OsString, f32::consts::PI};
 
-use egui_macroquad::{macroquad::prelude::*, egui::{Window, Align2, ComboBox, RichText, Color32, Label}};
+use egui_macroquad::{macroquad::prelude::*, egui::{Window, Align2, ComboBox, RichText, Color32, Label, Grid, Button}};
 
 use crate::{camera::OrbitCamera, furry_mesh::FurryMesh, furry_material::FurryMaterial, params::Params};
 
+/// Holds the entire application state
 pub struct State {
 	params: Params,
 	orbit_camera: OrbitCamera,
@@ -12,6 +13,7 @@ pub struct State {
 	material: FurryMaterial,
 	files: Result<Vec<OsString>, Error>,
 	current_file: usize,
+	info_open: bool,
 }
 
 impl State {
@@ -25,20 +27,33 @@ impl State {
 
 		let params = Params::default();
 
-		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params };
+		let mut ret = Self { orbit_camera, camera: Camera3D::default(), mesh: None, material: FurryMaterial::new(&params), files, current_file: 0, params, info_open: true };
 		ret.load_mesh(0);
 
 		ret
 	}
 
-	pub fn draw(&mut self) {		
+	/// Draws the 2D base grid
+	pub fn draw_grid() {
+		let radius = 10.0;
+
+		for i in (-radius as i32)..=(radius as i32) {
+			draw_line_3d(Vec3::X * radius + Vec3::Y * i as f32, -Vec3::X * radius + Vec3::Y * i as f32, if i == 0 { RED } else { GRAY });
+			draw_line_3d(Vec3::Y * radius + Vec3::X * i as f32, -Vec3::Y * radius + Vec3::X * i as f32, if i == 0 { BLUE } else { GRAY });
+		}
+	}
+
+	/// Draws a single frame
+	pub fn draw(&mut self) {
+		clear_background(Color::new(self.params.ambient[0] * 1.5, self.params.ambient[1] * 1.5, self.params.ambient[2] * 1.5, 1.0));
+
 		self.camera = self.orbit_camera.camera();
 		
 		set_camera(&self.camera);
 
-		draw_line_3d(Vec3::ZERO, Vec3::X * 10.0, RED);
-		draw_line_3d(Vec3::ZERO, Vec3::Y * 10.0, GREEN);
-		draw_line_3d(Vec3::ZERO, Vec3::Z * 10.0, BLUE);
+		if self.params.show_grid {
+			Self::draw_grid();
+		}
 
 		if let Some(mesh) = &mut self.mesh {
 			self.material.set_camera_pos(self.camera.position);
@@ -69,6 +84,10 @@ impl State {
 				.fixed_size([150.0, 300.0])
 				.title_bar(false)
 				.show(ctx, |ui| {
+					if ui.selectable_value(&mut self.info_open, true, "Show info").clicked() {
+
+					}
+
 					if let Ok(files) = &self.files {
 						ui.label("Choose model:");
 						ComboBox::new("models", "")
@@ -90,7 +109,31 @@ impl State {
 						ui.add(Label::new(RichText::new("Couldn't read ./objs/\n").color(Color32::RED)));
 					}
 				});
-				
+			
+			Window::new("Shell TextFURring").open(&mut self.info_open).show(ctx, |ui| {
+				ui.label("[You can view this window again by clicking the first button in the inspector on the left]");
+				ui.separator();
+
+				ui.label("Controls:");
+
+				Grid::new("controls").striped(true).show(ui, |ui| {
+					ui.label("Drag LMB");
+					ui.label("Rotate");
+					ui.end_row();
+
+					ui.label("Drag RMB");
+					ui.label("Pan around");
+					ui.end_row();
+
+					ui.label("LShift + Drag LMB");
+					ui.label("Move object");
+					ui.end_row();
+				});
+
+				ui.separator();
+
+				ui.label("In the inspector on the left you can select an object to show. The objects listed come from ./objs/ directory, where you can paste your own models. This program accepts only triangulated meshes, so triangulate it beforehand in some software (for example Blender). Have fun with playing around with parameters! If you have any more questions hit me up on discord: ");
+			});
 				
 			can_drag = !(ctx.is_using_pointer() || ctx.is_pointer_over_area());
 		});

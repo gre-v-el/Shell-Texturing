@@ -31,7 +31,8 @@ impl FurryMesh {
 		for object in objects {
 			for group in object.groups {
 				for poly in group.polys {
-					if poly.0.len() != 3 { 
+
+					if poly.0.len() != 3 { // ignore meshes that are not triangulated
 						self.meshes.clear();
 						return;
 					}
