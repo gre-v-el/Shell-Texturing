@@ -1,7 +1,7 @@
 # Shell Texturing Toy
 
 ## Download
-See the releases tab to the right ->
+See the releases tab to the right
 
 ## Features
 ### Rich inspector letting you edit:
@@ -47,3 +47,7 @@ When you try to import a mesh that is not triangulated, the program ignores it. 
 The textboxes can be either clicked and then edited using keyboard, or dragged left-right OR up-down.
 
 ![ui dragging](readme_imgs/ui.gif)
+
+---
+
+Made for [Acerola's Furry challange](https://github.com/GarrettGunnell/Shell-Texturing).
