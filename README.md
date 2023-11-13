@@ -44,6 +44,6 @@ When you try to import a mesh that is not triangulated, the program ignores it. 
 | LShift + Drag LMB |  Move object  |
 
 ## UI
-The textboxes can be either clicked and the edited using keyboard, or dragged left-right OR up-down.
+The textboxes can be either clicked and then edited using keyboard, or dragged left-right OR up-down.
 
 ![ui dragging](readme_imgs/ui.gif)
